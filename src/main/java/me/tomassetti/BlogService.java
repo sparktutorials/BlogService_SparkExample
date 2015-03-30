@@ -39,7 +39,8 @@ public class BlogService
             return title != null && !title.isEmpty() && !categories.isEmpty();
         }
     }
-    
+
+    // In a real application you may want to use a DB, for this example we just store the posts in memory
     public static class Model {
         private int nextId = 1;
         private Map<Integer, Post> posts = new HashMap<>();
@@ -82,7 +83,8 @@ public class BlogService
     
     public static void main( String[] args) {
         Model model = new Model();
-        
+
+        // insert a post (using HTTP post method)
         post("/posts", (request, response) -> {
             try {
                 ObjectMapper mapper = new ObjectMapper();
@@ -100,7 +102,8 @@ public class BlogService
                 return "";
             }
         });
-        
+
+        // get all post (using HTTP get method)
         get("/posts", (request, response) -> {
             response.status(200);
             response.type("application/json");
