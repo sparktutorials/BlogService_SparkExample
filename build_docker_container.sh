@@ -1,0 +1,1 @@
+docker build -t blog_db_container db_container 
