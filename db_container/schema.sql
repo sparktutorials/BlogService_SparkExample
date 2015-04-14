@@ -7,7 +7,7 @@ CREATE TABLE posts (
 
 CREATE TABLE comments (
     comment_uuid uuid primary key,
-    post_uuid uuid,
+    post_uuid uuid references posts(post_uuid),
     author text,
     content text,
     approved bool,
