@@ -3,10 +3,12 @@ package me.tomassetti.sql2omodel;
 import me.tomassetti.RandomUuidGenerator;
 import me.tomassetti.UuidGenerator;
 import me.tomassetti.model.Model;
+import me.tomassetti.model.Post;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class Sql2oModel implements Model {
@@ -20,7 +22,7 @@ public class Sql2oModel implements Model {
     }
 
     @Override
-    public UUID createPost(String title, String content) {
+    public UUID createPost(String title, String content, List<String> categories) {
         try (Connection conn = sql2o.open()) {
             UUID postUuid = uuidGenerator.generate();
             // Create the country brand
@@ -38,5 +40,10 @@ public class Sql2oModel implements Model {
     public UUID createComment(UUID post, String author, String content) {
         return null;
     }
-    
+
+    @Override
+    public List<Post> getAllPosts() {
+        return null;
+    }
+
 }

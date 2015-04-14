@@ -2,21 +2,25 @@ package me.tomassetti;
  
 import static spark.Spark.get;
 import static spark.Spark.post;
+import static spark.SparkBase.port;
 
+import com.beust.jcommander.JCommander;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Data;
+import me.tomassetti.model.Model;
+import me.tomassetti.sql2omodel.Sql2oModel;
+import org.sql2o.Sql2o;
+import org.sql2o.converters.UUIDConverter;
+import org.sql2o.quirks.PostgresQuirks;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -24,10 +28,6 @@ public class BlogService
 {
 
     private static final int HTTP_BAD_REQUEST = 400;
-    
-    interface Validable {
-        boolean isValid();
-    }
 
     @Data
     static class NewPostPayload {
@@ -39,36 +39,7 @@ public class BlogService
             return title != null && !title.isEmpty() && !categories.isEmpty();
         }
     }
-
-    // In a real application you may want to use a DB, for this example we just store the posts in memory
-    public static class Model {
-        private int nextId = 1;
-        private Map<Integer, Post> posts = new HashMap<>();
-        
-        @Data
-        class Post {
-            private int id;
-            private String title;
-            private List<String> categories;
-            private String content;
-        }
-        
-        public int createPost(String title, String content, List<String> categories){
-            int id = nextId++;
-            Post post = new Post();
-            post.setId(id);
-            post.setTitle(title);
-            post.setContent(content);
-            post.setCategories(categories);
-            posts.put(id, post);
-            return id;
-        }
-        
-        public List<Post> getAllPosts(){
-            return posts.keySet().stream().sorted().map((id) -> posts.get(id)).collect(Collectors.toList());
-        }
-    }
-
+    
     public static String dataToJson(Object data) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -82,7 +53,28 @@ public class BlogService
     }
     
     public static void main( String[] args) {
-        Model model = new Model();
+        CommandLineOptions options = new CommandLineOptions();
+        new JCommander(options, args);
+
+        logger.debug("Options.debug = " + options.debug);
+        logger.debug("Options.database = " + options.database);
+        logger.debug("Options.dbHost = " + options.dbHost);
+        logger.debug("Options.dbUsername = " + options.dbUsername);
+        logger.debug("Options.dbPort = " + options.dbPort);
+        logger.debug("Options.servicePort = " + options.servicePort);
+
+        port(options.servicePort);
+
+        Sql2o sql2o = new Sql2o("jdbc:postgresql://" + options.dbHost + ":" + options.dbPort + "/" + options.database,
+                options.dbUsername, options.dbPassword, new PostgresQuirks() {
+            {
+                // make sure we use default UUID converter.
+                converters.put(UUID.class, new UUIDConverter());
+            }
+        });
+        
+        
+        Model model = new Sql2oModel();
 
         // insert a post (using HTTP post method)
         post("/posts", (request, response) -> {
@@ -93,7 +85,7 @@ public class BlogService
                     response.status(HTTP_BAD_REQUEST);
                     return "";
                 }
-                int id = model.createPost(creation.getTitle(), creation.getContent(), creation.getCategories());
+                UUID id = model.createPost(creation.getTitle(), creation.getContent(), creation.getCategories());
                 response.status(200);
                 response.type("application/json");
                 return id;
