@@ -75,7 +75,11 @@ public class Sql2oModel implements Model {
 
     @Override
     public List<Comment> getAllCommentsOn(UUID post) {
-        return null;
+        try (Connection conn = sql2o.open()) {
+            return conn.createQuery("select * from comments where post_uuid=:post_uuid")
+                    .addParameter("post_uuid", post)
+                    .executeAndFetch(Comment.class);
+        }
     }
 
     @Override

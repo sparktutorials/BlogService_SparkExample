@@ -107,27 +107,33 @@ public class BlogService
             return dataToJson(model.getAllPosts());
         });
 
-        // insert a post (using HTTP post method)
         post("/posts/:uuid/comments", (request, response) -> {
-            request.
-
             ObjectMapper mapper = new ObjectMapper();
             NewCommentPayload creation = mapper.readValue(request.body(), NewCommentPayload.class);
             if (!creation.isValid()) {
                 response.status(HTTP_BAD_REQUEST);
                 return "";
             }
-            UUID id = model.createPost(creation.getTitle(), creation.getContent(), creation.getCategories());
+            UUID post = UUID.fromString(request.params(":uuid"));
+            if (!model.existPost(post)){
+                response.status(400);
+                return "";
+            }
+            UUID id = model.createComment(post, creation.getAuthor(), creation.getContent());
             response.status(200);
             response.type("application/json");
             return id;
         });
 
-        // get all post (using HTTP get method)
-        get("/posts", (request, response) -> {
+        get("/posts/:uuid/comments", (request, response) -> {
+            UUID post = UUID.fromString(request.params(":uuid"));
+            if (!model.existPost(post)) {
+                response.status(400);
+                return "";
+            }
             response.status(200);
             response.type("application/json");
-            return dataToJson(model.getAllPosts());
+            return dataToJson(model.getAllCommentsOn(post));
         });
     }
 }

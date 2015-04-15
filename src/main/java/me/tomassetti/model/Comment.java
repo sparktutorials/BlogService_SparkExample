@@ -8,9 +8,9 @@ import java.util.UUID;
 @Data
 public class Comment {
     UUID comment_uuid;
-    UUID postUuid;
+    UUID post_uuid;
     String author;
-    String text;
+    String content;
     boolean approved;
     Date submission_date;
 }
