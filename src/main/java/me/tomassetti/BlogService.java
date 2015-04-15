@@ -21,11 +21,12 @@ import spark.Route;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 public class BlogService 
 {
+
+    private static final Logger logger = Logger.getLogger(BlogService.class.getCanonicalName());
 
     private static final int HTTP_BAD_REQUEST = 400;
 
@@ -36,7 +37,17 @@ public class BlogService
         private String content;
 
         public boolean isValid() {
-            return title != null && !title.isEmpty() && !categories.isEmpty();
+            return title != null && !title.isEmpty() && content != null && !content.isEmpty();
+        }
+    }
+
+    @Data
+    static class NewCommentPayload {
+        private String author;
+        private String content;
+
+        public boolean isValid() {
+            return author != null && !author.isEmpty() && content != null && !content.isEmpty();
         }
     }
     
@@ -56,12 +67,12 @@ public class BlogService
         CommandLineOptions options = new CommandLineOptions();
         new JCommander(options, args);
 
-        logger.debug("Options.debug = " + options.debug);
-        logger.debug("Options.database = " + options.database);
-        logger.debug("Options.dbHost = " + options.dbHost);
-        logger.debug("Options.dbUsername = " + options.dbUsername);
-        logger.debug("Options.dbPort = " + options.dbPort);
-        logger.debug("Options.servicePort = " + options.servicePort);
+        logger.finest("Options.debug = " + options.debug);
+        logger.finest("Options.database = " + options.database);
+        logger.finest("Options.dbHost = " + options.dbHost);
+        logger.finest("Options.dbUsername = " + options.dbUsername);
+        logger.finest("Options.dbPort = " + options.dbPort);
+        logger.finest("Options.servicePort = " + options.servicePort);
 
         port(options.servicePort);
 
@@ -72,27 +83,44 @@ public class BlogService
                 converters.put(UUID.class, new UUIDConverter());
             }
         });
-        
-        
-        Model model = new Sql2oModel();
+
+        Model model = new Sql2oModel(sql2o);
 
         // insert a post (using HTTP post method)
         post("/posts", (request, response) -> {
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                NewPostPayload creation = mapper.readValue(request.body(), NewPostPayload.class);
-                if (!creation.isValid()) {
-                    response.status(HTTP_BAD_REQUEST);
-                    return "";
-                }
-                UUID id = model.createPost(creation.getTitle(), creation.getContent(), creation.getCategories());
-                response.status(200);
-                response.type("application/json");
-                return id;
-            } catch (JsonParseException jpe) {
+            ObjectMapper mapper = new ObjectMapper();
+            NewPostPayload creation = mapper.readValue(request.body(), NewPostPayload.class);
+            if (!creation.isValid()) {
                 response.status(HTTP_BAD_REQUEST);
                 return "";
             }
+            UUID id = model.createPost(creation.getTitle(), creation.getContent(), creation.getCategories());
+            response.status(200);
+            response.type("application/json");
+            return id;
+        });
+
+        // get all post (using HTTP get method)
+        get("/posts", (request, response) -> {
+            response.status(200);
+            response.type("application/json");
+            return dataToJson(model.getAllPosts());
+        });
+
+        // insert a post (using HTTP post method)
+        post("/posts/:uuid/comments", (request, response) -> {
+            request.
+
+            ObjectMapper mapper = new ObjectMapper();
+            NewCommentPayload creation = mapper.readValue(request.body(), NewCommentPayload.class);
+            if (!creation.isValid()) {
+                response.status(HTTP_BAD_REQUEST);
+                return "";
+            }
+            UUID id = model.createPost(creation.getTitle(), creation.getContent(), creation.getCategories());
+            response.status(200);
+            response.type("application/json");
+            return id;
         });
 
         // get all post (using HTTP get method)

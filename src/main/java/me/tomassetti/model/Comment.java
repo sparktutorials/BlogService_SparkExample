@@ -7,10 +7,10 @@ import java.util.UUID;
 
 @Data
 public class Comment {
-    UUID commentUuid;
+    UUID comment_uuid;
     UUID postUuid;
     String author;
     String text;
     boolean approved;
-    Date submissionDate;
+    Date submission_date;
 }

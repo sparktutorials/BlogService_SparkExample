@@ -8,9 +8,9 @@ import java.util.UUID;
 
 @Data
 public class Post {
-    private UUID postUuid;
+    private UUID post_uuid;
     private String title;
     private String content;
-    private Date publishingDate;
+    private Date publishing_date;
     private List<String> categories;
 }

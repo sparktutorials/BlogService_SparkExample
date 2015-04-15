@@ -14,4 +14,9 @@ CREATE TABLE comments (
     submission_date date
 );
 
+CREATE TABLE posts_categories (
+    post_uuid uuid references posts(post_uuid),
+    category text
+);
+
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO blog_owner;
