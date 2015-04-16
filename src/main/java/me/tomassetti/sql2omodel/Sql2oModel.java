@@ -24,7 +24,7 @@ public class Sql2oModel implements Model {
 
     @Override
     public UUID createPost(String title, String content, List<String> categories) {
-        try (Connection conn = sql2o.open()) {
+        try (Connection conn = sql2o.beginTransaction()) {
             UUID postUuid = uuidGenerator.generate();
             conn.createQuery("insert into posts(post_uuid, title, content, publishing_date) VALUES (:post_uuid, :title, :content, :date)")
                     .addParameter("post_uuid", postUuid)
@@ -37,6 +37,7 @@ public class Sql2oModel implements Model {
                     .addParameter("post_uuid", postUuid)
                     .addParameter("category", category)
                     .executeUpdate());
+            conn.commit();
             return postUuid;
         }
     }
