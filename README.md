@@ -1,9 +1,10 @@
 Blog service
 ============
 
-Simple example application descrived in the post at: [tomassetti.me](http://tomassetti.me)
+Simple example application descrived in a couple of tutorials: 
 
-The article is available here: [http://tomassetti.me/getting-started-with-spark-it-is-possible-to-create-lightweight-restful-application-also-in-java/](http://tomassetti.me/getting-started-with-spark-it-is-possible-to-create-lightweight-restful-application-also-in-java/)
+* [Getting started with Spark: it is possible to create lightweight RESTful application also in Java](http://tomassetti.me/getting-started-with-spark-it-is-possible-to-create-lightweight-restful-application-also-in-java/)
+* [Spark and Databases: Configuring Spark to work with Sql2o in a testable way](http://sparktutorials.weebly.com/tutorials/spark-and-databases-configuring-spark-to-work-with-sql2o-in-a-testable-way)
 
 Start the application
 =====================
