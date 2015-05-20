@@ -1,11 +1,6 @@
 package me.tomassetti;
  
-import static spark.Spark.get;
-import static spark.Spark.post;
-import static spark.SparkBase.port;
-
 import com.beust.jcommander.JCommander;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Data;
@@ -14,14 +9,17 @@ import me.tomassetti.sql2omodel.Sql2oModel;
 import org.sql2o.Sql2o;
 import org.sql2o.converters.UUIDConverter;
 import org.sql2o.quirks.PostgresQuirks;
-import spark.Request;
-import spark.Response;
-import spark.Route;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
+
+import static spark.Spark.get;
+import static spark.Spark.post;
+import static spark.SparkBase.port;
 
 public class BlogService 
 {
