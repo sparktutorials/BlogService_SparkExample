@@ -3,19 +3,21 @@ package me.tomassetti;
 import com.beust.jcommander.JCommander;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.template.Configuration;
 import lombok.Data;
 import me.tomassetti.model.Model;
 import me.tomassetti.sql2omodel.Sql2oModel;
 import org.sql2o.Sql2o;
 import org.sql2o.converters.UUIDConverter;
 import org.sql2o.quirks.PostgresQuirks;
+import spark.ModelAndView;
 import spark.Request;
+import spark.template.freemarker.FreeMarkerEngine;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static spark.Spark.get;
@@ -63,7 +65,7 @@ public class BlogService
     }
 
     private static boolean shouldReturnHtml(Request request) {
-        Object accept = request.attribute("Accept");
+        Object accept = request.headers("Accept");
         return "text/html".equals(accept);
     }
 
@@ -89,6 +91,10 @@ public class BlogService
         });
 
         Model model = new Sql2oModel(sql2o);
+        FreeMarkerEngine freeMarkerEngine = new FreeMarkerEngine();
+        Configuration freeMarkerConfiguration = new Configuration();
+        freeMarkerConfiguration.setTemplateLoader(new ClassTemplateLoader(BlogService.class, "/"));
+        freeMarkerEngine.setConfiguration(freeMarkerConfiguration);
 
         // insert a post (using HTTP post method)
         post("/posts", (request, response) -> {
@@ -106,10 +112,14 @@ public class BlogService
 
         // get all post (using HTTP get method)
         get("/posts", (request, response) -> {
+            System.out.println("HTML? "+shouldReturnHtml(request));
             if (shouldReturnHtml(request)) {
                 response.status(200);
                 response.type("text/html");
-                return dataToJson(model.getAllPosts());
+                Map<String, Object> attributes = new HashMap<>();
+                attributes.put("posts", model.getAllPosts());
+
+                return freeMarkerEngine.render(new ModelAndView(attributes, "posts.ftl"));
             } else {
                 response.status(200);
                 response.type("application/json");
