@@ -9,6 +9,7 @@ import me.tomassetti.sql2omodel.Sql2oModel;
 import org.sql2o.Sql2o;
 import org.sql2o.converters.UUIDConverter;
 import org.sql2o.quirks.PostgresQuirks;
+import spark.Request;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -60,7 +61,12 @@ public class BlogService
             throw new RuntimeException("IOException from a StringWriter?");
         }
     }
-    
+
+    private static boolean shouldReturnHtml(Request request) {
+        Object accept = request.attribute("Accept");
+        return "text/html".equals(accept);
+    }
+
     public static void main( String[] args) {
         CommandLineOptions options = new CommandLineOptions();
         new JCommander(options, args);
@@ -100,9 +106,15 @@ public class BlogService
 
         // get all post (using HTTP get method)
         get("/posts", (request, response) -> {
-            response.status(200);
-            response.type("application/json");
-            return dataToJson(model.getAllPosts());
+            if (shouldReturnHtml(request)) {
+                response.status(200);
+                response.type("text/html");
+                return dataToJson(model.getAllPosts());
+            } else {
+                response.status(200);
+                response.type("application/json");
+                return dataToJson(model.getAllPosts());
+            }
         });
 
         post("/posts/:uuid/comments", (request, response) -> {
