@@ -22,6 +22,20 @@ See class BlogService for more details.
 
 In the project there is also a Docker container for the DB, you can use it if you know what you are doing.
 
+If you want to use the docker container
+=======================================
+
+Launch it like this:
+
+```bash
+docker run -p 6000:5432 a3c93947f86e
+```
+
+and the application like this:
+
+```java
+mvn exec:java -Dexec.args="--db-port 6000"
+```
 
 Insert a post
 =============
