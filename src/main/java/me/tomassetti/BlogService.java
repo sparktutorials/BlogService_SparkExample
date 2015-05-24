@@ -65,8 +65,8 @@ public class BlogService
     }
 
     private static boolean shouldReturnHtml(Request request) {
-        Object accept = request.headers("Accept");
-        return "text/html".equals(accept);
+        String accept = request.headers("Accept");
+        return accept != null && accept.contains("text/html");
     }
 
     public static void main( String[] args) {
@@ -112,7 +112,6 @@ public class BlogService
 
         // get all post (using HTTP get method)
         get("/posts", (request, response) -> {
-            System.out.println("HTML? "+shouldReturnHtml(request));
             if (shouldReturnHtml(request)) {
                 response.status(200);
                 response.type("text/html");
