@@ -19,10 +19,14 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.SparkBase.port;
+
+import static j2html.TagCreator.*;
 
 public class BlogService 
 {
@@ -115,10 +119,18 @@ public class BlogService
             if (shouldReturnHtml(request)) {
                 response.status(200);
                 response.type("text/html");
-                Map<String, Object> attributes = new HashMap<>();
-                attributes.put("posts", model.getAllPosts());
-
-                return freeMarkerEngine.render(new ModelAndView(attributes, "posts.ftl"));
+                return body().with(
+                        h1("My wonderful blog"),
+                        div().with(
+                            model.getAllPosts().stream().map((p) ->
+                                    div().with(
+                                            h2(p.getTitle()),
+                                            p(p.getContent()),
+                                            ul().with(p.getCategories().stream().map((cat) ->
+                                                    li(cat))
+                                                    .collect(Collectors.toList()))))
+                            .collect(Collectors.toList()))
+                ).render();
             } else {
                 response.status(200);
                 response.type("application/json");
