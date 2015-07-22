@@ -36,7 +36,7 @@ public class BlogService
     private static final int HTTP_BAD_REQUEST = 400;
 
     @Data
-    static class NewPostPayload {
+    static class NewPostPayload implements Validable {
         private String title;
         private List<String> categories = new LinkedList<>();
         private String content;
@@ -47,7 +47,7 @@ public class BlogService
     }
 
     @Data
-    static class NewCommentPayload {
+    static class NewCommentPayload implements Validable {
         private String author;
         private String content;
 
@@ -101,18 +101,7 @@ public class BlogService
         freeMarkerEngine.setConfiguration(freeMarkerConfiguration);
 
         // insert a post (using HTTP post method)
-        post("/posts", (request, response) -> {
-            ObjectMapper mapper = new ObjectMapper();
-            NewPostPayload creation = mapper.readValue(request.body(), NewPostPayload.class);
-            if (!creation.isValid()) {
-                response.status(HTTP_BAD_REQUEST);
-                return "";
-            }
-            UUID id = model.createPost(creation.getTitle(), creation.getContent(), creation.getCategories());
-            response.status(200);
-            response.type("application/json");
-            return id;
-        });
+        post("/posts", new PostsCreateHandler(model));
 
         // get all post (using HTTP get method)
         get("/posts", (request, response) -> {
