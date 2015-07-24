@@ -57,7 +57,7 @@ public abstract class AbstractRequestHandler<V extends Validable> implements Req
         ObjectMapper objectMapper = new ObjectMapper();
         V value = objectMapper.readValue(request.body(), valueClass);
         Map<String, String> queryParams = new HashMap<>();
-        Answer answer = processImpl(value, queryParams, shouldReturnHtml(request));
+        Answer answer = process(value, queryParams, shouldReturnHtml(request));
         response.status(answer.getCode());
         if (shouldReturnHtml(request)) {
             response.type("text/html");
