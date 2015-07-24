@@ -1,4 +1,9 @@
-package me.tomassetti;
+package me.tomassetti.handlers;
+
+import me.tomassetti.AbstractRequestHandler;
+import me.tomassetti.Answer;
+import me.tomassetti.Validable;
+import me.tomassetti.model.Model;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,14 +13,16 @@ import static j2html.TagCreator.*;
 /**
  * Created by federico on 22/07/15.
  */
-public class PostsIndexHandler extends AbstractRequestHandler {
+public class PostsIndexHandler extends AbstractRequestHandler<EmptyPayload> {
+
+    public PostsIndexHandler(Model model) {
+        super(EmptyPayload.class, model);
+    }
 
     @Override
-    public Answer process(Validable value, Map queryParams) {
-        if (shouldReturnHtml(request)) {
-            response.status(200);
-            response.type("text/html");
-            return body().with(
+    public Answer process(EmptyPayload value, Map queryParams, boolean shouldReturnHtml) {
+        if (shouldReturnHtml) {
+            String html = body().with(
                     h1("My wonderful blog"),
                     div().with(
                             model.getAllPosts().stream().map((p) ->
@@ -27,10 +34,10 @@ public class PostsIndexHandler extends AbstractRequestHandler {
                                                     .collect(Collectors.toList()))))
                                     .collect(Collectors.toList()))
             ).render();
+            return Answer.ok(html);
         } else {
-            response.status(200);
-            response.type("application/json");
-            return dataToJson(model.getAllPosts());
+            String json = dataToJson(model.getAllPosts());
+            return Answer.ok(json);
         }
     }
 

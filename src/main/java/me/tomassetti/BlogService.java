@@ -1,77 +1,29 @@
 package me.tomassetti;
  
 import com.beust.jcommander.JCommander;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
-import lombok.Data;
+import me.tomassetti.handlers.CommentsListHandler;
+import me.tomassetti.handlers.PostsCreateHandler;
+import me.tomassetti.handlers.PostsIndexHandler;
 import me.tomassetti.model.Model;
 import me.tomassetti.sql2omodel.Sql2oModel;
 import org.sql2o.Sql2o;
 import org.sql2o.converters.UUIDConverter;
 import org.sql2o.quirks.PostgresQuirks;
-import spark.ModelAndView;
-import spark.Request;
 import spark.template.freemarker.FreeMarkerEngine;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.*;
+import java.util.UUID;
 import java.util.logging.Logger;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.SparkBase.port;
 
-import static j2html.TagCreator.*;
-
 public class BlogService 
 {
 
     private static final Logger logger = Logger.getLogger(BlogService.class.getCanonicalName());
-
-    private static final int HTTP_BAD_REQUEST = 400;
-
-    @Data
-    static class NewPostPayload implements Validable {
-        private String title;
-        private List<String> categories = new LinkedList<>();
-        private String content;
-
-        public boolean isValid() {
-            return title != null && !title.isEmpty() && content != null && !content.isEmpty();
-        }
-    }
-
-    @Data
-    static class NewCommentPayload implements Validable {
-        private String author;
-        private String content;
-
-        public boolean isValid() {
-            return author != null && !author.isEmpty() && content != null && !content.isEmpty();
-        }
-    }
-    
-    public static String dataToJson(Object data) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            StringWriter sw = new StringWriter();
-            mapper.writeValue(sw, data);
-            return sw.toString();
-        } catch (IOException e){
-            throw new RuntimeException("IOException from a StringWriter?");
-        }
-    }
-
-    private static boolean shouldReturnHtml(Request request) {
-        String accept = request.headers("Accept");
-        return accept != null && accept.contains("text/html");
-    }
 
     public static void main( String[] args) {
         CommandLineOptions options = new CommandLineOptions();
@@ -104,56 +56,10 @@ public class BlogService
         post("/posts", new PostsCreateHandler(model));
 
         // get all post (using HTTP get method)
-        get("/posts", (request, response) -> {
-            if (shouldReturnHtml(request)) {
-                response.status(200);
-                response.type("text/html");
-                return body().with(
-                        h1("My wonderful blog"),
-                        div().with(
-                            model.getAllPosts().stream().map((p) ->
-                                    div().with(
-                                            h2(p.getTitle()),
-                                            p(p.getContent()),
-                                            ul().with(p.getCategories().stream().map((cat) ->
-                                                    li(cat))
-                                                    .collect(Collectors.toList()))))
-                            .collect(Collectors.toList()))
-                ).render();
-            } else {
-                response.status(200);
-                response.type("application/json");
-                return dataToJson(model.getAllPosts());
-            }
-        });
+        get("/posts", new PostsIndexHandler(model));
 
-        post("/posts/:uuid/comments", (request, response) -> {
-            ObjectMapper mapper = new ObjectMapper();
-            NewCommentPayload creation = mapper.readValue(request.body(), NewCommentPayload.class);
-            if (!creation.isValid()) {
-                response.status(HTTP_BAD_REQUEST);
-                return "";
-            }
-            UUID post = UUID.fromString(request.params(":uuid"));
-            if (!model.existPost(post)){
-                response.status(400);
-                return "";
-            }
-            UUID id = model.createComment(post, creation.getAuthor(), creation.getContent());
-            response.status(200);
-            response.type("application/json");
-            return id;
-        });
+        post("/posts/:uuid/comments", new PostsCreateHandler(model));
 
-        get("/posts/:uuid/comments", (request, response) -> {
-            UUID post = UUID.fromString(request.params(":uuid"));
-            if (!model.existPost(post)) {
-                response.status(400);
-                return "";
-            }
-            response.status(200);
-            response.type("application/json");
-            return dataToJson(model.getAllCommentsOn(post));
-        });
+        get("/posts/:uuid/comments", new CommentsListHandler(model));
     }
 }

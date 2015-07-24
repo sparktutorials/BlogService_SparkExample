@@ -2,6 +2,11 @@ package me.tomassetti;
 
 public class Answer {
 
+    public Answer(int code) {
+        this.code = code;
+        this.body = "";
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -36,5 +41,9 @@ public class Answer {
     public Answer(int code, String body){
         this.code = code;
         this.body = body;
+    }
+
+    public static Answer ok(String body) {
+        return new Answer(200, body);
     }
 }
