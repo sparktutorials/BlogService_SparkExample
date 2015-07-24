@@ -3,6 +3,7 @@ package me.tomassetti;
 import com.beust.jcommander.JCommander;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
+import me.tomassetti.handlers.CommentsCreateHandler;
 import me.tomassetti.handlers.CommentsListHandler;
 import me.tomassetti.handlers.PostsCreateHandler;
 import me.tomassetti.handlers.PostsIndexHandler;
@@ -58,7 +59,7 @@ public class BlogService
         // get all post (using HTTP get method)
         get("/posts", new PostsIndexHandler(model));
 
-        post("/posts/:uuid/comments", new PostsCreateHandler(model));
+        post("/posts/:uuid/comments", new CommentsCreateHandler(model));
 
         get("/posts/:uuid/comments", new CommentsListHandler(model));
     }

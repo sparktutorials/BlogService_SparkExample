@@ -17,7 +17,7 @@ public class PostsCreateHandler extends AbstractRequestHandler<NewPostPayload> {
     }
 
     @Override
-    public Answer process(NewPostPayload value, Map<String, String> queryParams, boolean shouldReturnHtml) {
+    protected Answer processImpl(NewPostPayload value, Map<String, String> queryParams, boolean shouldReturnHtml) {
         UUID id = model.createPost(value.getTitle(), value.getContent(), value.getCategories());
         return new Answer(200, id.toString());
     }

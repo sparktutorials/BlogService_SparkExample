@@ -2,7 +2,6 @@ package me.tomassetti.handlers;
 
 import me.tomassetti.AbstractRequestHandler;
 import me.tomassetti.Answer;
-import me.tomassetti.Validable;
 import me.tomassetti.model.Model;
 
 import java.util.Map;
@@ -10,9 +9,6 @@ import java.util.stream.Collectors;
 
 import static j2html.TagCreator.*;
 
-/**
- * Created by federico on 22/07/15.
- */
 public class PostsIndexHandler extends AbstractRequestHandler<EmptyPayload> {
 
     public PostsIndexHandler(Model model) {
@@ -20,7 +16,7 @@ public class PostsIndexHandler extends AbstractRequestHandler<EmptyPayload> {
     }
 
     @Override
-    public Answer process(EmptyPayload value, Map queryParams, boolean shouldReturnHtml) {
+    protected Answer processImpl(EmptyPayload value, Map queryParams, boolean shouldReturnHtml) {
         if (shouldReturnHtml) {
             String html = body().with(
                     h1("My wonderful blog"),
