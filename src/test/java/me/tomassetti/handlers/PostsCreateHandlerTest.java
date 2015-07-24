@@ -22,10 +22,13 @@ public class PostsCreateHandlerTest {
         assertFalse(newPost.isValid());
 
         Model model = EasyMock.createMock(Model.class);
+        replay(model);
 
         PostsCreateHandler handler = new PostsCreateHandler(model);
         assertEquals(new Answer(400), handler.process(newPost, Collections.emptyMap(), false));
         assertEquals(new Answer(400), handler.process(newPost, Collections.emptyMap(), true));
+
+        verify(model);
     }
 
     @Test
