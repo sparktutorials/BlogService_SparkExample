@@ -27,6 +27,11 @@ public class Answer {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "Answer(code=" + code + ", body=" + body + ")";
+    }
+
     public String getBody() {
         return body;
     }
