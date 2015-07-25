@@ -16,7 +16,7 @@ public class PostsIndexHandler extends AbstractRequestHandler<EmptyPayload> {
     }
 
     @Override
-    protected Answer processImpl(EmptyPayload value, Map queryParams, boolean shouldReturnHtml) {
+    protected Answer processImpl(EmptyPayload value, Map urlParams, boolean shouldReturnHtml) {
         if (shouldReturnHtml) {
             String html = body().with(
                     h1("My wonderful blog"),

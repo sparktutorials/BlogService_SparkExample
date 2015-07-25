@@ -17,8 +17,8 @@ public class CommentsCreateHandler extends AbstractRequestHandler<NewCommentPayl
     }
 
     @Override
-    protected Answer processImpl(NewCommentPayload creation, Map<String, String> queryParams, boolean shouldReturnHtml) {
-        UUID post = UUID.fromString(queryParams.get(":uuid"));
+    protected Answer processImpl(NewCommentPayload creation, Map<String, String> urlParams, boolean shouldReturnHtml) {
+        UUID post = UUID.fromString(urlParams.get(":uuid"));
         if (!model.existPost(post)){
             return new Answer(400);
         }

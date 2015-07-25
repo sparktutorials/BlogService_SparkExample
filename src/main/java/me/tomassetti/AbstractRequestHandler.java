@@ -41,23 +41,23 @@ public abstract class AbstractRequestHandler<V extends Validable> implements Req
         }
     }
 
-    public final Answer process(V value, Map<String, String> queryParams, boolean shouldReturnHtml) {
+    public final Answer process(V value, Map<String, String> urlParams, boolean shouldReturnHtml) {
         if (!value.isValid()) {
             return new Answer(HTTP_BAD_REQUEST);
         } else {
-            return processImpl(value, queryParams, shouldReturnHtml);
+            return processImpl(value, urlParams, shouldReturnHtml);
         }
     }
 
-    protected abstract Answer processImpl(V value, Map<String, String> queryParams, boolean shouldReturnHtml);
+    protected abstract Answer processImpl(V value, Map<String, String> urlParams, boolean shouldReturnHtml);
 
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         V value = objectMapper.readValue(request.body(), valueClass);
-        Map<String, String> queryParams = new HashMap<>();
-        Answer answer = process(value, queryParams, shouldReturnHtml(request));
+        Map<String, String> urlParams = new HashMap<>();
+        Answer answer = process(value, urlParams, shouldReturnHtml(request));
         response.status(answer.getCode());
         if (shouldReturnHtml(request)) {
             response.type("text/html");
