@@ -8,9 +8,6 @@ import java.io.*;
 import java.util.Optional;
 import java.util.Properties;
 
-/**
-* Created by ftomassetti on 13/04/15.
-*/
 class CommandLineOptions {
 
     @Parameter(names = "--debug")
@@ -33,6 +30,4 @@ class CommandLineOptions {
 
     @Parameter(names = {"--db-port"})
     Integer dbPort = 5432;
-
-
 }

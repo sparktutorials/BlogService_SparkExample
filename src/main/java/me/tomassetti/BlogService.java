@@ -12,6 +12,9 @@ import me.tomassetti.sql2omodel.Sql2oModel;
 import org.sql2o.Sql2o;
 import org.sql2o.converters.UUIDConverter;
 import org.sql2o.quirks.PostgresQuirks;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 import spark.template.freemarker.FreeMarkerEngine;
 
 import java.util.UUID;
@@ -62,5 +65,12 @@ public class BlogService
         post("/posts/:uuid/comments", new CommentsCreateHandler(model));
 
         get("/posts/:uuid/comments", new CommentsListHandler(model));
+
+        get("/alive", new Route() {
+            @Override
+            public Object handle(Request request, Response response) throws Exception {
+                return "ok";
+            }
+        });
     }
 }
