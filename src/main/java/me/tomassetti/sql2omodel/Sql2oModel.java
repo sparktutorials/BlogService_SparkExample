@@ -121,4 +121,13 @@ public class Sql2oModel implements Model {
         }
     }
 
+    @Override
+    public void deletePost(UUID uuid) {
+        try (Connection conn = sql2o.open()) {
+            conn.createQuery("delete from posts where post_uuid=:post_uuid")
+                    .addParameter("post_uuid", uuid)
+                    .executeUpdate();
+        }
+    }
+
 }

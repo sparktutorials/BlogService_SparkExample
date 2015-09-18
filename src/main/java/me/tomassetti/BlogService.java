@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.put;
+import static spark.Spark.delete;
 import static spark.SparkBase.port;
 
 public class BlogService 
@@ -60,9 +61,13 @@ public class BlogService
         // get all post (using HTTP get method)
         get("/posts", new PostsIndexHandler(model));
 
-        post("/posts/:uuid/comments", new CommentsCreateHandler(model));
+        get("/posts/:uuid", new GetSinglePostHandler(model));
 
         put("/posts/:uuid", new PostsEditHandler(model));
+
+        delete("/posts/:uuid", new PostsDeleteHandler(model));
+
+        post("/posts/:uuid/comments", new CommentsCreateHandler(model));
 
         get("/posts/:uuid/comments", new CommentsListHandler(model));
 

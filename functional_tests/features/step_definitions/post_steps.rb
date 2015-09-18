@@ -42,7 +42,6 @@ When(/^I edit post ([a-f0-9-]+) setting title="([^"]*)"$/) do |uuid, title|
     \"title\" : \"#{title}\"
   }
   """
-  STDOUT.puts("URL = " + "http://localhost:4567/posts/#{uuid}")
   response = RestClient.put "http://localhost:4567/posts/#{uuid}", payload, :content_type => :json, :accept => :json
   expect(response.code).to eq(200)
 end
@@ -58,7 +57,13 @@ When(/^I edit post ([a-f0-9-]+) setting content="([^"]*)"$/) do |uuid, content|
 end
 
 When(/^I delete post ([a-f0-9-]+)$/) do |uuid|
-  pending # Write code here that turns the phrase above into concrete actions
+    begin
+      response = RestClient.delete "http://localhost:4567/posts/#{uuid}"
+      expect(response.code).to eq(200)
+    rescue RestClient::InternalServerError => e
+        STDERR.puts (e.methods)
+        throw e
+    end
 end
 
 #
@@ -102,13 +107,37 @@ Then(/^the post has content "([^"]*)"$/) do |content|
 end
 
 Then(/^the post ([a-f0-9-]+) has title "([^"]*)"$/) do |uuid, title|
-  pending # Write code here that turns the phrase above into concrete actions
+    begin
+      response = RestClient.get "http://localhost:4567/posts/#{uuid}"      
+      expect(response.code).to eq(200)
+      data = JSON.parse(response.body)
+      expect(data["title"]).to eq(title)
+    rescue RestClient::InternalServerError => e
+        STDERR.puts (e.methods)
+        throw e
+    end
 end
 
 Then(/^the post ([a-f0-9-]+) has content "([^"]*)"$/) do |uuid, content|
-  pending # Write code here that turns the phrase above into concrete actions
+    begin
+      response = RestClient.get "http://localhost:4567/posts/#{uuid}"      
+      expect(response.code).to eq(200)
+      data = JSON.parse(response.body)
+      expect(data["content"]).to eq(content)
+    rescue RestClient::InternalServerError => e
+        STDERR.puts (e.methods)
+        throw e
+    end
 end
 
 Then(/^post ([a-f0-9-]+) is not found$/) do |uuid|
-  pending # Write code here that turns the phrase above into concrete actions
+    begin
+      response = RestClient.get "http://localhost:4567/posts/#{uuid}"      
+      expect(response.code).to eq(404)
+    rescue RestClient::ResourceNotFound => e
+        # good!
+    rescue RestClient::InternalServerError => e
+        STDERR.puts (e.methods)
+        throw e
+    end
 end

@@ -14,4 +14,6 @@ public interface Model {
     Optional<Post> getPost(UUID uuid);
 
     void updatePost(Post post);
+
+    void deletePost(UUID uuid);
 }
