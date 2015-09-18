@@ -6,9 +6,7 @@ Feature: Post managament
     I can delete posts
   
     Scenario: Add a post
-        Given an empty blog
-        When I insert a post with title "Foo" and body "bar"
-        Then I have one post
-        Then the post has ID 1
+        When I insert a post with title "Foo" and content "bar"
+        Then I have 1 posts
         Then the post has title "Foo"
-        Then the post has body "bar"
+        Then the post has content "bar"

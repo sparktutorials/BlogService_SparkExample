@@ -1,74 +1,57 @@
 #encoding: utf-8
 
+require 'rest-client'
+require 'json'
+require "rspec"
+include RSpec::Matchers
+
+
 # psql -h 127.0.0.1 -p 7500 -U blog_owner -d blog
 
-def create_clean_db
-    started = system 'sh start_db'
-    raise Exception('Unable to start DB') unless started
-    attempts_left = 30
-    while attempts_left > 0
-        up_and_running = system 'sh db_is_up.sh'
-        return if up_and_running
-        puts "Waiting for db... (attemps left #{attempts_left}"
-        sleep(1)
-        attempts_left = attempts_left - 1
-    end
-    stop_db
-    raise Exception('DB does not respond, giving up')
+When(/^I insert a post with title "([^"]*)" and content "([^"]*)"$/) do |title, content|
+  payload = """
+  {
+    \"title\" : \"#{title}\",
+    \"content\" : \"#{content}\",
+    \"categories\" : []
+  }
+  """
+  response = RestClient.post 'http://localhost:4567/posts', payload, :content_type => :json, :accept => :json
+  expect(response.code).to eq(201)
 end
 
-def stop_db
-    system 'sh kill_all_functests_db_containers.sh'
-end
-
-def application_up_and_running?
+Then(/^I have (\d+) posts?$/) do |n_posts|
     begin
-        RestClient.get 'http://localhost:4567/alive'
-        return true
-    rescue
-        return false
+      response = RestClient.get 'http://localhost:4567/posts'      
+      expect(response.code).to eq(200)
+      data = JSON.parse(response.body)
+      expect(data.count).to eq(n_posts.to_i)
+    rescue RestClient::InternalServerError => e
+        STDERR.puts (e.methods)
+        throw e
     end
 end
 
-def start_application
-    res = system 'sh start_application.sh'    
-    attempts_left = 30
-    while attempts_left > 0
-        up_and_running = application_up_and_running?
-        return if up_and_running
-        puts "Waiting for the application... (attemps left #{attempts_left}"
-        sleep(2)
-        attempts_left = attempts_left - 1
+Then(/^the post has title "([^"]*)"$/) do |title|
+    begin
+      response = RestClient.get 'http://localhost:4567/posts'      
+      expect(response.code).to eq(200)
+      data = JSON.parse(response.body)
+      expect(data[0]["title"]).to eq(title)
+    rescue RestClient::InternalServerError => e
+        STDERR.puts (e.methods)
+        throw e
     end
-    stop_application
-    raise Exception('The application does not respond, giving up')
 end
 
-def stop_application
-    res = system 'sh stop_application.sh'
-end
-
-Given(/^an empty blog$/) do
-  create_clean_db
-  start_application
-end
-
-When(/^I insert a post with title "([^"]*)" and body "([^"]*)"$/) do |arg1, arg2|
-  pending # Write code here that turns the phrase above into concrete actions
-end
-
-Then(/^I have one post$/) do
-  pending # Write code here that turns the phrase above into concrete actions
-end
-
-Then(/^the post has ID (\d+)$/) do |arg1|
-  pending # Write code here that turns the phrase above into concrete actions
-end
-
-Then(/^the post has title "([^"]*)"$/) do |arg1|
-  pending # Write code here that turns the phrase above into concrete actions
-end
-
-Then(/^the post has body "([^"]*)"$/) do |arg1|
-  pending # Write code here that turns the phrase above into concrete actions
+Then(/^the post has content "([^"]*)"$/) do |content|
+    begin
+      response = RestClient.get 'http://localhost:4567/posts'      
+      expect(response.code).to eq(200)
+      data = JSON.parse(response.body)
+      expect(data[0]["content"]).to eq(content)
+    rescue RestClient::InternalServerError => e
+        STDERR.puts (e.methods)
+        throw e
+    end
 end
