@@ -10,6 +10,7 @@ import org.sql2o.Sql2o;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Sql2oModel implements Model {
@@ -90,6 +91,33 @@ public class Sql2oModel implements Model {
                     .addParameter("post", post)
                     .executeAndFetch(Post.class);
             return posts.size() > 0;
+        }
+    }
+
+    @Override
+    public Optional<Post> getPost(UUID uuid) {
+        try (Connection conn = sql2o.open()) {
+            List<Post> posts = conn.createQuery("select * from posts where post_uuid=:post_uuid")
+                    .addParameter("post_uuid", uuid)
+                    .executeAndFetch(Post.class);
+            if (posts.size() == 0) {
+                return Optional.empty();
+            } else if (posts.size() == 1) {
+                return Optional.of(posts.get(0));
+            } else {
+                throw new RuntimeException();
+            }
+        }
+    }
+
+    @Override
+    public void updatePost(Post post) {
+        try (Connection conn = sql2o.open()) {
+            conn.createQuery("update posts set title=:title, content=:content where post_uuid=:post_uuid")
+                    .addParameter("post_uuid", post.getPost_uuid())
+                    .addParameter("title", post.getTitle())
+                    .addParameter("content", post.getContent())
+                    .executeUpdate();
         }
     }
 

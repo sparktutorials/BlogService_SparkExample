@@ -7,12 +7,17 @@ include RSpec::Matchers
 
 # psql -h 127.0.0.1 -p 7500 -U blog_owner -d blog
 
+def execute_sql(sql_code)
+    done = system "sh db_execute.sh \"#{sql_code}\""
+    raise Exception.new("Issue executing sql code: #{sql_code}") unless done
+end
+
 #
 # Given
 #
 
-Given(/^that on the DB there is a post with UUID=(\d+)ff(\d+)\-(\d+)e\-(\d+)\-a(\d+)\-(\d+)ef(\d+) title="([^"]*)" content="([^"]*)"$/) do |arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9|
-  pending # Write code here that turns the phrase above into concrete actions
+Given(/^that on the DB there is a post with UUID=([a-f0-9-]+) title="([^"]*)" content="([^"]*)"$/) do |uuid, title, content|
+  execute_sql("insert into posts(post_uuid, title, content) values ('#{uuid}', '#{title}', '#{content}');")
 end
 
 #
@@ -31,15 +36,28 @@ When(/^I insert a post with title "([^"]*)" and content "([^"]*)"$/) do |title, 
   expect(response.code).to eq(201)
 end
 
-When(/^I edit post (\d+)ff(\d+)\-(\d+)e\-(\d+)\-a(\d+)\-(\d+)ef(\d+) setting title="([^"]*)"$/) do |arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8|
-  pending # Write code here that turns the phrase above into concrete actions
+When(/^I edit post ([a-f0-9-]+) setting title="([^"]*)"$/) do |uuid, title|
+  payload = """
+  {
+    \"title\" : \"#{title}\"
+  }
+  """
+  STDOUT.puts("URL = " + "http://localhost:4567/posts/#{uuid}")
+  response = RestClient.put "http://localhost:4567/posts/#{uuid}", payload, :content_type => :json, :accept => :json
+  expect(response.code).to eq(200)
 end
 
-When(/^I edit post (\d+)ff(\d+)\-(\d+)e\-(\d+)\-a(\d+)\-(\d+)ef(\d+) setting content="([^"]*)"$/) do |arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8|
-  pending # Write code here that turns the phrase above into concrete actions
+When(/^I edit post ([a-f0-9-]+) setting content="([^"]*)"$/) do |uuid, content|
+  payload = """
+  {
+    \"content\" : \"#{content}\"
+  }
+  """
+  response = RestClient.put "http://localhost:4567/posts/#{uuid}", payload, :content_type => :json, :accept => :json
+  expect(response.code).to eq(200)
 end
 
-When(/^I delete post (\d+)ff(\d+)\-(\d+)e\-(\d+)\-a(\d+)\-(\d+)ef(\d+)$/) do |arg1, arg2, arg3, arg4, arg5, arg6, arg7|
+When(/^I delete post ([a-f0-9-]+)$/) do |uuid|
   pending # Write code here that turns the phrase above into concrete actions
 end
 
@@ -83,14 +101,14 @@ Then(/^the post has content "([^"]*)"$/) do |content|
     end
 end
 
-Then(/^the post (\d+)ff(\d+)\-(\d+)e\-(\d+)\-a(\d+)\-(\d+)ef(\d+) has title "([^"]*)"$/) do |arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8|
+Then(/^the post ([a-f0-9-]+) has title "([^"]*)"$/) do |uuid, title|
   pending # Write code here that turns the phrase above into concrete actions
 end
 
-Then(/^the post (\d+)ff(\d+)\-(\d+)e\-(\d+)\-a(\d+)\-(\d+)ef(\d+) has content "([^"]*)"$/) do |arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8|
+Then(/^the post ([a-f0-9-]+) has content "([^"]*)"$/) do |uuid, content|
   pending # Write code here that turns the phrase above into concrete actions
 end
 
-Then(/^post (\d+)ff(\d+)\-(\d+)e\-(\d+)\-a(\d+)\-(\d+)ef(\d+) is not found$/) do |arg1, arg2, arg3, arg4, arg5, arg6, arg7|
+Then(/^post ([a-f0-9-]+) is not found$/) do |uuid|
   pending # Write code here that turns the phrase above into concrete actions
 end

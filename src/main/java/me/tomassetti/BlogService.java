@@ -3,10 +3,7 @@ package me.tomassetti;
 import com.beust.jcommander.JCommander;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
-import me.tomassetti.handlers.CommentsCreateHandler;
-import me.tomassetti.handlers.CommentsListHandler;
-import me.tomassetti.handlers.PostsCreateHandler;
-import me.tomassetti.handlers.PostsIndexHandler;
+import me.tomassetti.handlers.*;
 import me.tomassetti.model.Model;
 import me.tomassetti.sql2omodel.Sql2oModel;
 import org.sql2o.Sql2o;
@@ -22,6 +19,7 @@ import java.util.logging.Logger;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
+import static spark.Spark.put;
 import static spark.SparkBase.port;
 
 public class BlogService 
@@ -63,6 +61,8 @@ public class BlogService
         get("/posts", new PostsIndexHandler(model));
 
         post("/posts/:uuid/comments", new CommentsCreateHandler(model));
+
+        put("/posts/:uuid", new PostsEditHandler(model));
 
         get("/posts/:uuid/comments", new CommentsListHandler(model));
 

@@ -43,7 +43,7 @@ public class PostsCreateHandlerTest {
         replay(model);
 
         PostsCreateHandler handler = new PostsCreateHandler(model);
-        assertEquals(new Answer(200, "728084e8-7c9a-4133-a9a7-f2bb491ef436"), handler.process(newPost, Collections.emptyMap(), false));
+        assertEquals(new Answer(201, "728084e8-7c9a-4133-a9a7-f2bb491ef436"), handler.process(newPost, Collections.emptyMap(), false));
 
         verify(model);
     }
