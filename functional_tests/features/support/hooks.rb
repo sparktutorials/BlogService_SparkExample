@@ -2,14 +2,16 @@
 
 require 'rest-client'
 
+VERBOSE = false
+
 def create_clean_db
-    started = system 'sh start_db.sh &'
+    started = system 'sh start_db.sh >/dev/null &'
     raise Exception.new('Unable to start DB') unless started
     attempts_left = 30
     while attempts_left > 0
         up_and_running = system 'sh db_is_up.sh'
         return if up_and_running
-        puts "Waiting for db... (attemps left #{attempts_left})"
+        puts "Waiting for db... (attemps left #{attempts_left})" if $VERBOSE
         sleep(1)
         attempts_left = attempts_left - 1
     end
@@ -37,7 +39,7 @@ def start_application
     while attempts_left > 0
         up_and_running = application_up_and_running?
         return if up_and_running
-        $stdout.puts "Waiting for the application... (attemps left #{attempts_left})"
+        $stdout.puts "Waiting for the application... (attemps left #{attempts_left})" if $VERBOSE
         sleep(2)
         attempts_left = attempts_left - 1
     end
