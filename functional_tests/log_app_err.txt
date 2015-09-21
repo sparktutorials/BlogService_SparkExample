@@ -1,4 +1,0 @@
-[Thread-1] INFO spark.webserver.SparkServer - == Spark has ignited ...
-[Thread-1] INFO spark.webserver.SparkServer - >> Listening on 0.0.0.0:4567
-[Thread-1] INFO org.eclipse.jetty.server.Server - jetty-9.0.2.v20130417
-[Thread-1] INFO org.eclipse.jetty.server.ServerConnector - Started ServerConnector@3ad051f8{HTTP/1.1}{0.0.0.0:4567}

@@ -1,1 +1,3 @@
 vendor
+log_app_*
+sql_log_*
