@@ -3,15 +3,15 @@ package me.tomassetti;
 import com.beust.jcommander.JCommander;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
-import me.tomassetti.handlers.CommentsCreateHandler;
-import me.tomassetti.handlers.CommentsListHandler;
-import me.tomassetti.handlers.PostsCreateHandler;
-import me.tomassetti.handlers.PostsIndexHandler;
+import me.tomassetti.handlers.*;
 import me.tomassetti.model.Model;
 import me.tomassetti.sql2omodel.Sql2oModel;
 import org.sql2o.Sql2o;
 import org.sql2o.converters.UUIDConverter;
 import org.sql2o.quirks.PostgresQuirks;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 import spark.template.freemarker.FreeMarkerEngine;
 
 import java.util.UUID;
@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
+import static spark.Spark.put;
+import static spark.Spark.delete;
 import static spark.SparkBase.port;
 
 public class BlogService 
@@ -59,8 +61,21 @@ public class BlogService
         // get all post (using HTTP get method)
         get("/posts", new PostsIndexHandler(model));
 
+        get("/posts/:uuid", new GetSinglePostHandler(model));
+
+        put("/posts/:uuid", new PostsEditHandler(model));
+
+        delete("/posts/:uuid", new PostsDeleteHandler(model));
+
         post("/posts/:uuid/comments", new CommentsCreateHandler(model));
 
         get("/posts/:uuid/comments", new CommentsListHandler(model));
+
+        get("/alive", new Route() {
+            @Override
+            public Object handle(Request request, Response response) throws Exception {
+                return "ok";
+            }
+        });
     }
 }

@@ -1,7 +1,9 @@
 package me.tomassetti;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import me.tomassetti.handlers.EmptyPayload;
 import me.tomassetti.model.Model;
 import spark.Request;
 import spark.Response;
@@ -42,7 +44,7 @@ public abstract class AbstractRequestHandler<V extends Validable> implements Req
     }
 
     public final Answer process(V value, Map<String, String> urlParams, boolean shouldReturnHtml) {
-        if (!value.isValid()) {
+        if (value != null && !value.isValid()) {
             return new Answer(HTTP_BAD_REQUEST);
         } else {
             return processImpl(value, urlParams, shouldReturnHtml);
@@ -54,18 +56,27 @@ public abstract class AbstractRequestHandler<V extends Validable> implements Req
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        V value = objectMapper.readValue(request.body(), valueClass);
-        Map<String, String> urlParams = new HashMap<>();
-        Answer answer = process(value, urlParams, shouldReturnHtml(request));
-        response.status(answer.getCode());
-        if (shouldReturnHtml(request)) {
-            response.type("text/html");
-        } else {
-            response.type("application/json");
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            V value = null;
+            if (valueClass != EmptyPayload.class) {
+                value = objectMapper.readValue(request.body(), valueClass);
+            }
+            Map<String, String> urlParams = request.params();
+            Answer answer = process(value, urlParams, shouldReturnHtml(request));
+            response.status(answer.getCode());
+            if (shouldReturnHtml(request)) {
+                response.type("text/html");
+            } else {
+                response.type("application/json");
+            }
+            response.body(answer.getBody());
+            return answer.getBody();
+        } catch (JsonMappingException e) {
+            response.status(400);
+            response.body(e.getMessage());
+            return e.getMessage();
         }
-        response.body(answer.getBody());
-        return answer.getBody();
     }
 
 }

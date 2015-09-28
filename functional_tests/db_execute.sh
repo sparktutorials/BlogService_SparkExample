@@ -1,0 +1,1 @@
+psql -h 127.0.0.1 -p 7500 -U blog_owner -d blog -c "$1" > sql_log_out.txt 2> sql_log_err.txt
