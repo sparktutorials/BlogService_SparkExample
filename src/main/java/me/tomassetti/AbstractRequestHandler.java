@@ -1,7 +1,6 @@
 package me.tomassetti;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Map;
 
 import me.tomassetti.handlers.EmptyPayload;
@@ -35,9 +34,7 @@ public abstract class AbstractRequestHandler<V extends Validable> implements Req
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            StringWriter sw = new StringWriter();
-            mapper.writeValue(sw, data);
-            return sw.toString();
+            return mapper.writeValueAsString(data);
         } catch (IOException e){
             throw new RuntimeException("IOException from a StringWriter?");
         }
