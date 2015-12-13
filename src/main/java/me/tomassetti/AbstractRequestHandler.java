@@ -1,18 +1,18 @@
 package me.tomassetti;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Map;
+
 import me.tomassetti.handlers.EmptyPayload;
 import me.tomassetti.model.Model;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public abstract class AbstractRequestHandler<V extends Validable> implements RequestHandler<V>, Route {
 

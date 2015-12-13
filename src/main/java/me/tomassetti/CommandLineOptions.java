@@ -1,12 +1,6 @@
 package me.tomassetti;
 
 import com.beust.jcommander.Parameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.Optional;
-import java.util.Properties;
 
 class CommandLineOptions {
 

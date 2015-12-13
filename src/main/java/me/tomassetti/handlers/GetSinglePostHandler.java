@@ -1,16 +1,13 @@
 package me.tomassetti.handlers;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import me.tomassetti.AbstractRequestHandler;
 import me.tomassetti.Answer;
 import me.tomassetti.model.Model;
 import me.tomassetti.model.Post;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static j2html.TagCreator.*;
 
 public class GetSinglePostHandler extends AbstractRequestHandler<EmptyPayload> {
 
