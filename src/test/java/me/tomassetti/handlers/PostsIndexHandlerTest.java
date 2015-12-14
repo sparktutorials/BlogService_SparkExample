@@ -1,16 +1,20 @@
 package me.tomassetti.handlers;
 
-import com.google.common.collect.ImmutableList;
-import me.tomassetti.Answer;
-import me.tomassetti.model.Model;
-import me.tomassetti.model.Post;
-import org.easymock.EasyMock;
-import org.junit.Test;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
 
-import static org.junit.Assert.*;
-import static org.easymock.EasyMock.*;
+import me.tomassetti.Answer;
+import me.tomassetti.model.Model;
+import me.tomassetti.model.Post;
+
+import org.easymock.EasyMock;
+import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 
 
@@ -19,7 +23,7 @@ public class PostsIndexHandlerTest {
     @Test
     public void emptyListIsHandledCorrectlyInHtmlOutput() {
         Model model = EasyMock.createMock(Model.class);
-        expect(model.getAllPosts()).andReturn(Collections.EMPTY_LIST);
+        expect(model.getAllPosts()).andReturn(Collections.emptyList());
         replay(model);
 
         PostsIndexHandler handler = new PostsIndexHandler(model);
@@ -56,7 +60,7 @@ public class PostsIndexHandlerTest {
     @Test
     public void emptyListIsHandledCorrectlyInJsonOutput() {
         Model model = EasyMock.createMock(Model.class);
-        expect(model.getAllPosts()).andReturn(Collections.EMPTY_LIST);
+        expect(model.getAllPosts()).andReturn(Collections.emptyList());
         replay(model);
 
         PostsIndexHandler handler = new PostsIndexHandler(model);
